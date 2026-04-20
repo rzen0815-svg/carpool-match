@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>拼车匹配系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <h1>校门口拼车登记</h1>
+        <p class="subtitle">填写信息后，系统会自动按时间、车站和人数偏好匹配</p>
+
+        <form method="post">
+            <div class="form-group">
+                <label>联系方式</label>
+                <input type="text" id="contact" name="contact" required placeholder="请输入微信号或手机号">
+                <p class="helper-text">提交后可通过联系方式查询状态或取消报名。</p>
+                <p id="contact-message" class="helper-text"></p>
+            </div>
+
+            <div class="form-group">
+                <label>出发时间</label>
+                <input type="time" id="time" name="time" required>
+                <p class="helper-text">请选择合理的出发时间。</p>
+                <p id="time-message" class="helper-text"></p>
+            </div>
+
+            <div class="form-group">
+                <label>目的地</label>
+                <div class="radio-group">
+                    <label class="radio-card">
+                        <input type="radio" name="destination" value="福州站" required>
+                        福州站
+                    </label>
+                    <label class="radio-card">
+                        <input type="radio" name="destination" value="福州南站" required>
+                        福州南站
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>可接受人数</label>
+                <div class="radio-group">
+                    <label class="radio-card">
+                        <input type="radio" name="group_size" value="2" required>
+                        2人一车
+                    </label>
+                    <label class="radio-card">
+                        <input type="radio" name="group_size" value="3" required>
+                        3人一车
+                    </label>
+                </div>
+            </div>
+
+            <button class="button" type="submit">提交报名</button>
+        </form>
+
+        <div class="link-list">
+            <a href="/manage">查询状态</a>
+        </div>
+    </div>
+
+    <script>
+        const contactInput = document.getElementById("contact");
+        const contactMessage = document.getElementById("contact-message");
+        const timeInput = document.getElementById("time");
+        const timeMessage = document.getElementById("time-message");
+
+        contactInput.addEventListener("blur", async function () {
+            const contact = contactInput.value.trim();
+
+            if (contact === "") {
+                contactMessage.textContent = "";
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("contact", contact);
+
+            try {
+                const response = await fetch("/check_contact", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.exists) {
+                    contactMessage.textContent = "这个联系方式已经提交过了，请先查询状态或取消原报名。";
+                    contactMessage.style.color = "#dc2626";
+                } else {
+                    contactMessage.textContent = "这个联系方式可以使用。";
+                    contactMessage.style.color = "#16a34a";
+                }
+            } catch (error) {
+                contactMessage.textContent = "检测失败，请稍后重试。";
+                contactMessage.style.color = "#dc2626";
+            }
+        });
+
+        function checkTimeValid() {
+            const value = timeInput.value;
+
+            if (!value) {
+                timeMessage.textContent = "";
+                return true;
+            }
+
+            const now = new Date();
+            const [hour, minute] = value.split(":").map(Number);
+
+            const selected = new Date();
+            selected.setHours(hour, minute, 0, 0);
+
+            const diffMinutes = (selected - now) / 1000 / 60;
+
+            if (diffMinutes < -30) {
+                timeMessage.textContent = "这个时间已经过去太久了，请重新选择。";
+                timeMessage.style.color = "#dc2626";
+                return false;
+            } else {
+                timeMessage.textContent = "时间可以使用。";
+                timeMessage.style.color = "#16a34a";
+                return true;
+            }
+        }
+
+        timeInput.addEventListener("change", checkTimeValid);
+
+        document.querySelector("form").addEventListener("submit", function (e) {
+            const ok = checkTimeValid();
+            if (!ok) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+
+</html>

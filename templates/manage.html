@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>查询状态</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>查询状态</h1>
+        <p class="subtitle">输入报名时填写的联系方式</p>
+
+        <form method="post">
+            <div class="form-group">
+                <label>联系方式</label>
+                <input type="text" name="contact" required placeholder="请输入你的联系方式">
+            </div>
+
+            <button class="button" type="submit">查询状态</button>
+        </form>
+
+        <div class="link-list">
+            <a href="/">返回首页</a>
+        </div>
+    </div>
+</body>
+</html>

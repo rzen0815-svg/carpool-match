@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container center">
+        {% if success %}
+        <div class="status-success">{{ title }}</div>
+        {% else %}
+        <div class="status-empty">{{ title }}</div>
+        {% endif %}
+
+        <div class="info-box">
+            <p>{{ message }}</p>
+        </div>
+
+        <div class="link-list">
+            <a href="/">返回首页</a>
+        </div>
+    </div>
+</body>
+
+</html>

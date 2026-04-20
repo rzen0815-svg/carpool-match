@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>报名状态</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <h1>报名状态</h1>
+
+        {% if user_group %}
+        <div class="status-success">你已匹配成功。</div>
+        {% for person in user_group %}
+        <div class="info-box">
+            <p>联系方式：{{ person["contact"] }}</p>
+            <p>时间：{{ person["time"] }}</p>
+            <p>目的地：{{ person["destination"] }}</p>
+            <p>可接受人数：{{ person["group_size"] }}</p>
+        </div>
+        {% endfor %}
+
+        <form id="cancel-form" method="post" action="/cancel_confirm">
+            <input type="hidden" name="contact" value="{{ contact }}">
+            <button class="button-secondary" type="button" onclick="openCancelModal()">取消报名</button>
+        </form>
+
+        {% elif waiting_person %}
+        <div class="status-waiting">你还在等待中。</div>
+        <div class="info-box">
+            <p>联系方式：{{ waiting_person["contact"] }}</p>
+            <p>时间：{{ waiting_person["time"] }}</p>
+            <p>目的地：{{ waiting_person["destination"] }}</p>
+            <p>可接受人数：{{ waiting_person["group_size"] }}</p>
+        </div>
+
+        <form id="cancel-form" method="post" action="/cancel_confirm">
+            <input type="hidden" name="contact" value="{{ contact }}">
+            <button class="button-secondary" type="button" onclick="openCancelModal()">取消报名</button>
+        </form>
+
+        {% else %}
+        <div class="status-empty">没有找到你的报名记录。</div>
+        {% endif %}
+
+        <div class="link-list">
+            <a href="/">返回首页</a>
+        </div>
+    </div>
+
+    <div id="cancel-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title">确认取消报名</div>
+            <div class="modal-text">取消后，你当前的报名记录会被删除。确定继续吗？</div>
+            <div class="modal-actions">
+                <button class="modal-btn-cancel" type="button" onclick="closeCancelModal()">再想想</button>
+                <button class="modal-btn-confirm" type="button" onclick="submitCancelForm()">确定取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openCancelModal() {
+            document.getElementById("cancel-modal").style.display = "flex";
+        }
+
+        function closeCancelModal() {
+            document.getElementById("cancel-modal").style.display = "none";
+        }
+
+        function submitCancelForm() {
+            document.getElementById("cancel-form").submit();
+        }
+    </script>
+</body>
+
+</html>
