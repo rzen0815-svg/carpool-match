@@ -60,11 +60,22 @@ def index():
 
     if request.method == "POST":
         contact = request.form.get("contact", "").strip()
+        date_str = request.form.get("date", "").strip()
         time_str = request.form.get("time", "").strip()
         destination = request.form.get("destination", "").strip()
         group_size = request.form.get("group_size", "").strip()
 
-        current_request = create_request(contact, time_str, destination, group_size)
+        try:
+            current_request = create_request(
+                contact, date_str, time_str, destination, group_size
+            )
+        except ValueError as e:
+            return render_template(
+                "message.html",
+                title="提交失败",
+                message=str(e),
+                success=False,
+            )
 
         requests_list = load_requests()
 

@@ -40,13 +40,13 @@ def remove_expired_requests():
     new_list = []
 
     for person in requests_list:
-        request_time = datetime.strptime(person["time"], "%H:%M")
+        request_dt = datetime.strptime(
+            f'{person["date"]} {person["time"]}', "%Y-%m-%d %H:%M"
+        )
 
-        request_time = request_time.replace(year=now.year, month=now.month, day=now.day)
+        diff_minutes = (request_dt - now).total_seconds() / 60
 
-        time_diff = (request_time - now).total_seconds() / 60
-
-        if time_diff >= -30:
+        if diff_minutes >= -30:
             new_list.append(person)
 
     save_requests(new_list)

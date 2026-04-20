@@ -1,7 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
-def create_request(contact, time_str, destination, group_size):
+def create_request(contact, date_str, time_str, destination, group_size):
     if destination not in ["福州站", "福州南站"]:
         raise ValueError("目的地只能是 福州站 或 福州南站")
 
@@ -9,19 +9,21 @@ def create_request(contact, time_str, destination, group_size):
         raise ValueError("可接受人数只能是 2 或 3")
 
     try:
-        request_time = datetime.strptime(time_str, "%H:%M")
+        request_dt = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
     except ValueError:
-        raise ValueError("时间格式必须正确，例如 14:20")
+        raise ValueError("日期或时间无效，请重新选择")
 
     now = datetime.now()
-    request_time = request_time.replace(year=now.year, month=now.month, day=now.day)
 
-    diff_minutes = (request_time - now).total_seconds() / 60
-    if diff_minutes < -30:
+    if request_dt < now - timedelta(minutes=30):
         raise ValueError("这个时间已经过去太久了，请重新选择")
+
+    if request_dt > now + timedelta(days=3):
+        raise ValueError("目前最多只能预约未来三天内的拼车")
 
     request = {
         "contact": contact,
+        "date": date_str,
         "time": time_str,
         "destination": destination,
         "group_size": group_size,
@@ -30,21 +32,24 @@ def create_request(contact, time_str, destination, group_size):
     return request
 
 
-def parse_time(time_str):
-    return datetime.strptime(time_str, "%H:%M")
+def parse_datetime(person):
+    return datetime.strptime(f'{person["date"]} {person["time"]}', "%Y-%m-%d %H:%M")
 
 
 def can_match_two_people(person1, person2, max_minutes=20):
     if person1["destination"] != person2["destination"]:
         return False
 
+    if person1["date"] != person2["date"]:
+        return False
+
     if person1["group_size"] != "2" or person2["group_size"] != "2":
         return False
 
-    time1 = parse_time(person1["time"])
-    time2 = parse_time(person2["time"])
+    dt1 = parse_datetime(person1)
+    dt2 = parse_datetime(person2)
 
-    time_diff = abs((time1 - time2).total_seconds()) / 60
+    time_diff = abs((dt1 - dt2).total_seconds()) / 60
     if time_diff > max_minutes:
         return False
 
@@ -57,6 +62,11 @@ def can_match_three_people(person1, person2, person3, max_minutes=20):
     if person1["destination"] != person3["destination"]:
         return False
 
+    if person1["date"] != person2["date"]:
+        return False
+    if person1["date"] != person3["date"]:
+        return False
+
     if person1["group_size"] != "3":
         return False
     if person2["group_size"] != "3":
@@ -65,9 +75,9 @@ def can_match_three_people(person1, person2, person3, max_minutes=20):
         return False
 
     times = [
-        parse_time(person1["time"]),
-        parse_time(person2["time"]),
-        parse_time(person3["time"]),
+        parse_datetime(person1),
+        parse_datetime(person2),
+        parse_datetime(person3),
     ]
     earliest_time = min(times)
     latest_time = max(times)

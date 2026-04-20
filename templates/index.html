@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>拼车匹配系统</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
@@ -10,7 +11,7 @@
 <body>
     <div class="container">
         <h1>校门口拼车登记</h1>
-        <p class="subtitle">填写信息后，系统会自动按时间、车站和人数偏好匹配</p>
+        <p class="subtitle">填写信息后，系统会自动按日期、时间、车站和人数偏好匹配</p>
 
         <form method="post">
             <div class="form-group">
@@ -18,6 +19,25 @@
                 <input type="text" id="contact" name="contact" required placeholder="请输入微信号或手机号">
                 <p class="helper-text">提交后可通过联系方式查询状态或取消报名。</p>
                 <p id="contact-message" class="helper-text"></p>
+            </div>
+
+            <div class="form-group">
+                <label>出发日期</label>
+                <div class="radio-group">
+                    <label class="radio-card">
+                        <input type="radio" id="date-today" name="date" required>
+                        <span id="date-today-text">今天</span>
+                    </label>
+                    <label class="radio-card">
+                        <input type="radio" id="date-tomorrow" name="date" required>
+                        <span id="date-tomorrow-text">明天</span>
+                    </label>
+                    <label class="radio-card">
+                        <input type="radio" id="date-day-after" name="date" required>
+                        <span id="date-day-after-text">后天</span>
+                    </label>
+                </div>
+                <p id="date-message" class="helper-text"></p>
             </div>
 
             <div class="form-group">
@@ -66,8 +86,54 @@
     <script>
         const contactInput = document.getElementById("contact");
         const contactMessage = document.getElementById("contact-message");
+
+        const todayRadio = document.getElementById("date-today");
+        const tomorrowRadio = document.getElementById("date-tomorrow");
+        const dayAfterRadio = document.getElementById("date-day-after");
+
+        const todayText = document.getElementById("date-today-text");
+        const tomorrowText = document.getElementById("date-tomorrow-text");
+        const dayAfterText = document.getElementById("date-day-after-text");
+
+        const dateMessage = document.getElementById("date-message");
         const timeInput = document.getElementById("time");
         const timeMessage = document.getElementById("time-message");
+
+        function formatDate(dateObj) {
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+            const day = String(dateObj.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
+        }
+
+        function formatDateLabel(dateObj) {
+            const month = dateObj.getMonth() + 1;
+            const day = dateObj.getDate();
+            return `${month}月${day}日`;
+        }
+
+        function initDateOptions() {
+            const now = new Date();
+
+            const today = new Date(now);
+            const tomorrow = new Date(now);
+            tomorrow.setDate(now.getDate() + 1);
+            const dayAfterTomorrow = new Date(now);
+            dayAfterTomorrow.setDate(now.getDate() + 2);
+
+            todayRadio.value = formatDate(today);
+            tomorrowRadio.value = formatDate(tomorrow);
+            dayAfterRadio.value = formatDate(dayAfterTomorrow);
+
+            todayText.textContent = `今天 ${formatDateLabel(today)}`;
+            tomorrowText.textContent = `明天 ${formatDateLabel(tomorrow)}`;
+            dayAfterText.textContent = `后天 ${formatDateLabel(dayAfterTomorrow)}`;
+        }
+
+        function getSelectedDateValue() {
+            const selected = document.querySelector('input[name="date"]:checked');
+            return selected ? selected.value : "";
+        }
 
         contactInput.addEventListener("blur", async function () {
             const contact = contactInput.value.trim();
@@ -101,41 +167,62 @@
             }
         });
 
-        function checkTimeValid() {
-            const value = timeInput.value;
+        function checkDateValid() {
+            const dateValue = getSelectedDateValue();
 
-            if (!value) {
+            if (!dateValue) {
+                dateMessage.textContent = "";
+                return false;
+            }
+
+            dateMessage.textContent = "日期可以使用。";
+            dateMessage.style.color = "#16a34a";
+            return true;
+        }
+
+        function checkTimeValid() {
+            const dateValue = getSelectedDateValue();
+            const timeValue = timeInput.value;
+
+            if (!dateValue || !timeValue) {
                 timeMessage.textContent = "";
                 return true;
             }
 
             const now = new Date();
-            const [hour, minute] = value.split(":").map(Number);
-
-            const selected = new Date();
-            selected.setHours(hour, minute, 0, 0);
-
+            const selected = new Date(dateValue + "T" + timeValue + ":00");
             const diffMinutes = (selected - now) / 1000 / 60;
 
             if (diffMinutes < -30) {
                 timeMessage.textContent = "这个时间已经过去太久了，请重新选择。";
                 timeMessage.style.color = "#dc2626";
                 return false;
-            } else {
-                timeMessage.textContent = "时间可以使用。";
-                timeMessage.style.color = "#16a34a";
-                return true;
             }
+
+            timeMessage.textContent = "时间可以使用。";
+            timeMessage.style.color = "#16a34a";
+            return true;
         }
+
+        document.querySelectorAll('input[name="date"]').forEach(radio => {
+            radio.addEventListener("change", function () {
+                checkDateValid();
+                checkTimeValid();
+            });
+        });
 
         timeInput.addEventListener("change", checkTimeValid);
 
         document.querySelector("form").addEventListener("submit", function (e) {
-            const ok = checkTimeValid();
-            if (!ok) {
+            const dateOk = checkDateValid();
+            const timeOk = checkTimeValid();
+
+            if (!dateOk || !timeOk) {
                 e.preventDefault();
             }
         });
+
+        initDateOptions();
     </script>
 </body>
 

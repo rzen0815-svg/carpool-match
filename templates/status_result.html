@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>报名状态</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
@@ -16,6 +17,7 @@
         {% for person in user_group %}
         <div class="info-box">
             <p>联系方式：{{ person["contact"] }}</p>
+            <p>日期：{{ person["date"] }}</p>
             <p>时间：{{ person["time"] }}</p>
             <p>目的地：{{ person["destination"] }}</p>
             <p>可接受人数：{{ person["group_size"] }}</p>
@@ -31,6 +33,7 @@
         <div class="status-waiting">你还在等待中。</div>
         <div class="info-box">
             <p>联系方式：{{ waiting_person["contact"] }}</p>
+            <p>日期：{{ waiting_person["date"] }}</p>
             <p>时间：{{ waiting_person["time"] }}</p>
             <p>目的地：{{ waiting_person["destination"] }}</p>
             <p>可接受人数：{{ waiting_person["group_size"] }}</p>
