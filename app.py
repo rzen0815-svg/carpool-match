@@ -196,5 +196,11 @@ def admin():
     return render_template("admin.html", requests_list=masked_requests)
 
 
+@app.route("/clear_data_once")
+def clear_data_once():
+    save_requests([])
+    return "data cleared"
+
+
 if __name__ == "__main__":
     app.run(debug=True)
