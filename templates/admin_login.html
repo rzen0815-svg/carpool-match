@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>后台登录</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <h1>后台登录</h1>
+        <p class="subtitle">请输入后台密码</p>
+
+        {% if error %}
+        <div class="status-empty">{{ error }}</div>
+        {% endif %}
+
+        <form method="post">
+            <div class="form-group">
+                <label>后台密码</label>
+                <input type="text" name="password" required>
+            </div>
+
+            <button class="button" type="submit">登录</button>
+        </form>
+
+        <div class="link-list">
+            <a href="/">返回首页</a>
+        </div>
+    </div>
+</body>
+
+</html>

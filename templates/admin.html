@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>后台数据查看</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <h1>后台数据查看</h1>
+
+        {% if requests_list %}
+        {% for person in requests_list %}
+        <div class="info-box">
+            <p>联系方式：{{ person["contact"] }}</p>
+            <p>时间：{{ person["time"] }}</p>
+            <p>目的地：{{ person["destination"] }}</p>
+            <p>可接受人数：{{ person["group_size"] }}</p>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="status-empty">当前没有报名数据。</div>
+        {% endif %}
+
+        <div class="link-list">
+            <a href="/">返回首页</a>
+            <a href="/admin/logout">退出后台</a>
+        </div>
+    </div>
+</body>
+
+</html>
