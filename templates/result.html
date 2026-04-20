@@ -4,49 +4,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>匹配结果</title>
+    <title>预约结果</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
-    <div class="container">
-        <h1>匹配结果</h1>
+    <div class="container success-page">
+        <div class="success-hero">
+            <div class="success-hero-bg"></div>
 
-        {% if user_group %}
-        <div class="status-success">你已匹配成功。</div>
-        {% for person in user_group %}
-        <div class="info-box">
-            <p>联系方式：{{ person["contact"] }}</p>
-            <p>日期：{{ person["date"] }}</p>
-            <p>时间：{{ person["time"] }}</p>
-            <p>目的地：{{ person["destination"] }}</p>
-            <p>可接受人数：{{ person["group_size"] }}</p>
-        </div>
-        {% endfor %}
+            <span class="confetti confetti-1">✦</span>
+            <span class="confetti confetti-2">✦</span>
+            <span class="confetti confetti-3">●</span>
+            <span class="confetti confetti-4">●</span>
+            <span class="confetti confetti-5">✦</span>
+            <span class="confetti confetti-6">●</span>
+            <span class="ribbon ribbon-1"></span>
+            <span class="ribbon ribbon-2"></span>
 
-        <form id="cancel-form" method="post" action="/cancel_confirm">
-            <input type="hidden" name="contact" value="{{ contact }}">
-            <button class="button-secondary" type="button" onclick="openCancelModal()">取消报名</button>
-        </form>
-
-        {% elif waiting_person %}
-        <div class="status-waiting">你还在等待中。</div>
-        <div class="info-box">
-            <p>联系方式：{{ waiting_person["contact"] }}</p>
-            <p>日期：{{ waiting_person["date"] }}</p>
-            <p>时间：{{ waiting_person["time"] }}</p>
-            <p>目的地：{{ waiting_person["destination"] }}</p>
-            <p>可接受人数：{{ waiting_person["group_size"] }}</p>
+            <div class="success-thumb">👍</div>
         </div>
 
-        <form id="cancel-form" method="post" action="/cancel_confirm">
-            <input type="hidden" name="contact" value="{{ contact }}">
-            <button class="button-secondary" type="button" onclick="openCancelModal()">取消报名</button>
-        </form>
+        <h1 class="success-title-main">感谢你的预约。</h1>
+        <p class="success-subtitle-main">请查看你的预约结果。</p>
 
-        {% else %}
-        <div class="status-empty">没有找到你的匹配结果。</div>
-        {% endif %}
+        <div class="success-result-card">
+            {% if user_group %}
+            <div class="success-card-title">拼车信息</div>
+            <div class="success-card-status success-card-status-ok">你已匹配成功</div>
+
+            {% for person in user_group %}
+            <div class="member-card">
+                <div class="member-card-title">拼车成员 {{ loop.index }}</div>
+                <p>联系方式：{{ person["contact"] }}</p>
+                <p>日期：{{ person["date"] }}</p>
+                <p>时间：{{ person["time"] }}</p>
+                <p>目的地：{{ person["destination"] }}</p>
+                <p>可接受人数：{{ person["group_size"] }}</p>
+            </div>
+            {% endfor %}
+
+            {% elif waiting_person %}
+            <div class="success-card-title">拼车信息</div>
+            <div class="success-card-status success-card-status-wait">当前还在等待中</div>
+
+            <div class="member-card">
+                <div class="member-card-title">你的预约信息</div>
+                <p>联系方式：{{ waiting_person["contact"] }}</p>
+                <p>日期：{{ waiting_person["date"] }}</p>
+                <p>时间：{{ waiting_person["time"] }}</p>
+                <p>目的地：{{ waiting_person["destination"] }}</p>
+                <p>可接受人数：{{ waiting_person["group_size"] }}</p>
+            </div>
+            {% else %}
+            <div class="success-card-title">拼车信息</div>
+            <div class="success-card-status success-card-status-empty">没有找到你的预约结果</div>
+            {% endif %}
+
+            <div class="notice-card">
+                <div class="notice-card-title">说明</div>
+                <p>本系统只负责信息发布与拼车信息展示。</p>
+                <p>具体打车方式、上车地点、出发时间细节，请拼车人自行协商确认。</p>
+                <p>费用默认 AA，如需其他分摊方式，请自行沟通。</p>
+            </div>
+
+            {% if user_group or waiting_person %}
+            <form id="cancel-form" method="post" action="/cancel_confirm">
+                <input type="hidden" name="contact" value="{{ contact }}">
+                <button class="button-secondary" type="button" onclick="openCancelModal()">取消预约</button>
+            </form>
+            {% endif %}
+        </div>
 
         <div class="link-list">
             <a href="/">返回首页</a>
@@ -55,8 +83,8 @@
 
     <div id="cancel-modal" class="modal-overlay">
         <div class="modal-box">
-            <div class="modal-title">确认取消报名</div>
-            <div class="modal-text">取消后，你当前的报名记录会被删除。确定继续吗？</div>
+            <div class="modal-title">确认取消预约</div>
+            <div class="modal-text">取消后，你当前的预约记录会被删除。确定继续吗？</div>
             <div class="modal-actions">
                 <button class="modal-btn-cancel" type="button" onclick="closeCancelModal()">再想想</button>
                 <button class="modal-btn-confirm" type="button" onclick="submitCancelForm()">确定取消</button>

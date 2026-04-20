@@ -9,8 +9,20 @@
 </head>
 
 <body>
+    <div id="intro-overlay" class="intro-overlay">
+        <div class="intro-aurora"></div>
+        <div class="intro-snow" id="intro-snow"></div>
+        <div class="intro-mountains"></div>
+
+        <div class="intro-shell">
+            <div class="intro-mark">❄️🌲</div>
+            <div class="intro-title">拼车预约</div>
+            <div class="intro-subtitle">像冬夜一样安静。</div>
+        </div>
+    </div>
+
     <div class="container">
-        <h1>校门口拼车登记</h1>
+        <h1>福警南门拼车预约</h1>
         <p class="subtitle">填写信息后，系统会自动按日期、时间、车站和人数偏好匹配</p>
 
         <form method="post">
@@ -23,7 +35,7 @@
 
             <div class="form-group">
                 <label>出发日期</label>
-                <div class="radio-group">
+                <div class="radio-group radio-group-3">
                     <label class="radio-card">
                         <input type="radio" id="date-today" name="date" required>
                         <span id="date-today-text">今天</span>
@@ -52,11 +64,11 @@
                 <div class="radio-group">
                     <label class="radio-card">
                         <input type="radio" name="destination" value="福州站" required>
-                        福州站
+                        <span>福州站</span>
                     </label>
                     <label class="radio-card">
                         <input type="radio" name="destination" value="福州南站" required>
-                        福州南站
+                        <span>福州南站</span>
                     </label>
                 </div>
             </div>
@@ -66,11 +78,11 @@
                 <div class="radio-group">
                     <label class="radio-card">
                         <input type="radio" name="group_size" value="2" required>
-                        2人一车
+                        <span>2人一车</span>
                     </label>
                     <label class="radio-card">
                         <input type="radio" name="group_size" value="3" required>
-                        3人一车
+                        <span>3人一车</span>
                     </label>
                 </div>
             </div>
@@ -80,6 +92,11 @@
 
         <div class="link-list">
             <a href="/manage">查询状态</a>
+        </div>
+
+        <div class="site-credit">
+            <div>作者：snow pine</div>
+            <div>问题反馈：2985820663@qq.com</div>
         </div>
     </div>
 
@@ -156,14 +173,14 @@
 
                 if (data.exists) {
                     contactMessage.textContent = "这个联系方式已经提交过了，请先查询状态或取消原报名。";
-                    contactMessage.style.color = "#dc2626";
+                    contactMessage.style.color = "#ff8ea1";
                 } else {
                     contactMessage.textContent = "这个联系方式可以使用。";
-                    contactMessage.style.color = "#16a34a";
+                    contactMessage.style.color = "#9de8cf";
                 }
             } catch (error) {
                 contactMessage.textContent = "检测失败，请稍后重试。";
-                contactMessage.style.color = "#dc2626";
+                contactMessage.style.color = "#ff8ea1";
             }
         });
 
@@ -176,7 +193,7 @@
             }
 
             dateMessage.textContent = "日期可以使用。";
-            dateMessage.style.color = "#16a34a";
+            dateMessage.style.color = "#9de8cf";
             return true;
         }
 
@@ -195,21 +212,42 @@
 
             if (diffMinutes < -30) {
                 timeMessage.textContent = "这个时间已经过去太久了，请重新选择。";
-                timeMessage.style.color = "#dc2626";
+                timeMessage.style.color = "#ff8ea1";
                 return false;
             }
 
             timeMessage.textContent = "时间可以使用。";
-            timeMessage.style.color = "#16a34a";
+            timeMessage.style.color = "#9de8cf";
             return true;
         }
 
-        document.querySelectorAll('input[name="date"]').forEach(radio => {
-            radio.addEventListener("change", function () {
-                checkDateValid();
-                checkTimeValid();
+        function enableToggleableRadios() {
+            const radios = document.querySelectorAll('.radio-card input[type="radio"]');
+
+            radios.forEach(radio => {
+                radio.addEventListener("pointerdown", function () {
+                    this.dataset.wasChecked = this.checked ? "true" : "false";
+                });
+
+                radio.addEventListener("click", function () {
+                    if (this.dataset.wasChecked === "true") {
+                        this.checked = false;
+
+                        if (this.name === "date") {
+                            checkDateValid();
+                            checkTimeValid();
+                        }
+                    }
+                });
+
+                radio.addEventListener("change", function () {
+                    if (this.name === "date") {
+                        checkDateValid();
+                        checkTimeValid();
+                    }
+                });
             });
-        });
+        }
 
         timeInput.addEventListener("change", checkTimeValid);
 
@@ -222,6 +260,45 @@
             }
         });
 
+        const introSnow = document.getElementById("intro-snow");
+        const introOverlay = document.getElementById("intro-overlay");
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        if (!reduceMotion) {
+            for (let i = 0; i < 12; i++) {
+                const flake = document.createElement("span");
+                flake.className = "intro-flake";
+
+                const left = Math.random() * 100;
+                const duration = 7 + Math.random() * 5;
+                const delay = Math.random() * -8;
+                const size = 0.8 + Math.random() * 0.6;
+                const drift = (Math.random() * 24 - 12).toFixed(1) + "px";
+
+                flake.style.left = left + "vw";
+                flake.style.animationDuration = duration + "s";
+                flake.style.animationDelay = delay + "s";
+                flake.style.setProperty("--flake-scale", size);
+                flake.style.setProperty("--flake-drift", drift);
+
+                introSnow.appendChild(flake);
+            }
+        }
+
+        window.addEventListener("load", function () {
+            const hideDelay = reduceMotion ? 350 : 900;
+            const removeDelay = reduceMotion ? 700 : 1400;
+
+            setTimeout(() => {
+                introOverlay.classList.add("intro-hide");
+            }, hideDelay);
+
+            setTimeout(() => {
+                introOverlay.style.display = "none";
+            }, removeDelay);
+        });
+
+        enableToggleableRadios();
         initDateOptions();
     </script>
 </body>
